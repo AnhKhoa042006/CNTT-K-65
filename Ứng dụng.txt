@@ -1,0 +1,138 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+// Cấu trúc sinh viên
+typedef struct SinhVien {
+    int maSV;
+    char ten[50];
+    float diemTB;
+    struct SinhVien *next;
+} SinhVien;
+
+// Tạo node mới
+SinhVien* taoSinhVien(int ma, const char *ten, float diem) {
+    SinhVien *sv = (SinhVien*)malloc(sizeof(SinhVien));
+    sv->maSV = ma;
+    strcpy(sv->ten, ten);
+    sv->diemTB = diem;
+    sv->next = NULL;
+    return sv;
+}
+// Thêm sinh viên vào cuối danh sách
+void themSinhVien(SinhVien **head) {
+    int ma;
+    char ten[50];
+    float diem;
+
+    printf("Nhap ma sinh vien: ");
+    scanf("%d", &ma);
+    printf("Nhap ten sinh vien: ");
+    fflush(stdin);  // Xóa bộ đệm
+    fgets(ten, sizeof(ten), stdin);
+    ten[strcspn(ten, "\n")] = '\0';  // Xóa ký tự newline
+    printf("Nhap diem trung binh: ");
+    scanf("%f", &diem);
+
+    SinhVien *svMoi = taoSinhVien(ma, ten, diem);
+
+    if (*head == NULL) {
+        *head = svMoi;
+    } else {
+        SinhVien *temp = *head;
+        while (temp->next != NULL)
+            temp = temp->next;
+        temp->next = svMoi;
+    }
+
+    printf(">> Da them sinh vien!\n");
+}
+// Hiển thị danh sách sinh viên
+void hienThiDanhSach(SinhVien *head) {
+    if (head == NULL) {
+        printf(">> Danh sach rong!\n");
+        return;
+    }
+
+    printf("\n%-10s %-30s %-10s\n", "MaSV", "Ten", "DiemTB");
+    printf("-----------------------------------------------\n");
+    SinhVien *temp = head;
+    while (temp != NULL) {
+        printf("%-10d %-30s %-10.2f\n", temp->maSV, temp->ten, temp->diemTB);
+        temp = temp->next;
+    }
+}
+// Xóa sinh viên theo mã
+void xoaSinhVien(SinhVien **head) {
+    int ma;
+    printf("Nhap ma sinh vien muon xoa: ");
+    scanf("%d", &ma);
+
+    SinhVien *temp = *head, *prev = NULL;
+
+    while (temp != NULL && temp->maSV != ma) {
+        prev = temp;
+        temp = temp->next;
+    }
+if (temp == NULL) {
+        printf(">> Khong tim thay sinh vien co ma %d.\n", ma);
+        return;
+    }
+
+    if (prev == NULL) {
+        *head = temp->next; // xóa đầu
+    } else {
+        prev->next = temp->next;
+    }
+
+    free(temp);
+    printf(">> Da xoa sinh vien co ma %d.\n", ma);
+}
+
+// Giải phóng toàn bộ danh sách
+void giaiPhong(SinhVien *head) {
+    SinhVien *temp;
+    while (head != NULL) {
+        temp = head;
+        head = head->next;
+        free(temp);
+    }
+}
+// Menu chính
+void menu() {
+    printf("\n=== CHUONG TRINH QUAN LY SINH VIEN ===\n");
+    printf("1. Them sinh vien\n");
+    printf("2. Hien thi danh sach\n");
+    printf("3. Xoa sinh vien theo ma\n");
+    printf("4. Thoat\n");
+    printf("Chon chuc nang (1-4): ");
+}
+int main() {
+    SinhVien *danhSach = NULL;
+    int luaChon;
+
+    do {
+        menu();
+        scanf("%d", &luaChon);
+
+switch (luaChon) {
+            case 1:
+                themSinhVien(&danhSach);
+                break;
+            case 2:
+                hienThiDanhSach(danhSach);
+                break;
+            case 3:
+                xoaSinhVien(&danhSach);
+                break;
+            case 4:
+                giaiPhong(danhSach);
+                printf(">> Da thoat chuong trinh.\n");
+                break;
+            default:
+                printf(">> Lua chon khong hop le. Vui long nhap tu 1-4.\n");
+        }
+    } while (luaChon != 4);
+
+    return 0;
+}
